@@ -2,43 +2,47 @@
 #include <math.h>
 #define SYNTAX_ERROR "SYNTAX ERROR ... RESTARTING\n\n"
 
+struct expression {
+	float f_operand; 
+	float s_operand;
+	float solution;
+	char oper;
+};
+
+
+
 /*
-This function accepts two float pointers that represent operands, and an operator. Return NAN if there is an error 
+This function accepts a pointer to a struct expression. It will Assign NAN to the oper member if an error is found.
+If the expression can be evaluated, the result is assigned to the oper member
 */
-float solve_equation(float *first_oper, char op, float *second_oper) {
-	if (isinf(*first_oper) || isinf(*second_oper))
+void solve_equation(struct expression *exp1) {
+	if (isinf(exp1->f_operand) || isinf(exp1->s_operand))
 	{
 		printf("ERROR: One of the floats overflowed");
-		return NAN;
+		exp1->solution = NAN;
 	}
+	
 
-	switch (op) {
-	case '+':
-		return *first_oper + *second_oper;
-		break;
-
-	case '-':
-		return *first_oper - *second_oper;
-		break;
-
-	case '/':
+	if (exp1->oper == '+')
+		exp1->solution = exp1->f_operand + exp1->s_operand;
+	else if (exp1->oper == '-')
+		exp1->solution = exp1->f_operand - exp1->s_operand;
+	else if (exp1->oper == '/') {
 		// If dividing by zero, return NAN
-		if (*second_oper == 0) {
+		if (exp1->s_operand == 0) {
 			fprintf(stderr, "ERROR: Division by zero");
-			return NAN;
-			break;
+			exp1->solution = NAN;
 		}
-		else {
-			return *first_oper / *second_oper;
+		else 
+			exp1->solution = exp1->f_operand / exp1->s_operand;
 		}
-	case '*':
-		return *first_oper * *second_oper;
-
+	else if (exp1->oper == '*')
+		exp1->solution = exp1->f_operand * exp1->s_operand;
 	// Return NAN for invalid numbers
-	default:
+	else
+	{
 		fprintf(stderr, "ERROR: Unsupported Operator");
-		return NAN;
-		break;
+		exp1->solution = NAN;
 	}
 }
 
@@ -46,9 +50,10 @@ float solve_equation(float *first_oper, char op, float *second_oper) {
 * Main function will prompt the user for their expression and evaluate it using the solve_equation function
 */
 int main(void) {
-	float f_operand, s_operand, solution;
+
+	struct expression expression_1;
 	int n_terms;
-	char oper;
+
 	//Explain functionality of calculator to user
 	printf("Welcome to the calculator app.\
 		\nSupported operators are +, -, /, *,\
@@ -60,19 +65,19 @@ int main(void) {
 
 		//Grab the first number inserted by the user
 		printf("Enter your expression: ");
-		if (scanf_s("%f", &f_operand) == 1)
+		if (scanf_s("%f", &expression_1.f_operand) == 1)
 			n_terms++;
 		else
 			printf(SYNTAX_ERROR);
 
 		//Grab the operator entered by user
-		if (scanf_s(" %c", &oper) == 1)
+		if (scanf_s(" %c", &expression_1.oper, 1) == 1)
 			n_terms++;
 		else
 			printf(SYNTAX_ERROR);
 
 		//Grab the second number entered by user
-		if (scanf_s(" %f", &s_operand) == 1)
+		if (scanf_s(" %f", &expression_1.s_operand) == 1)
 			n_terms++;
 		else
 			printf(SYNTAX_ERROR);
@@ -80,13 +85,13 @@ int main(void) {
 		
 		//If the 2 operands and 1 operator is valid, call solve_equation and print solution, else something went wrong
 		if (n_terms == 3 ) {
-			printf("%.2f %c %.2f = ", f_operand, oper, s_operand);
-			solution = solve_equation(&f_operand, oper, &s_operand);
-			if (isnan(solution)){
+			printf("%.2f %c %.2f = ", expression_1.f_operand, expression_1.oper, expression_1.s_operand);
+			solve_equation(&expression_1);
+			if (isnan(expression_1.solution)){
 				printf("\n\n");
 			}
 			else {
-				printf("%.2f\n\n", solution);
+				printf("%.2f\n\n", expression_1.solution);
 			}
 		}
 		else {

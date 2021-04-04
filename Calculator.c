@@ -111,7 +111,7 @@ int main(void) {
 		if (n_terms == 3 ) {
 			printf("%.2f %c %.2f = ", expression_1.f_operand, expression_1.oper, expression_1.s_operand);
 			solve_equation(&expression_1);
-			if (isnan(expression_1.solution)){
+			if (isnan(expression_1.solution) || isinf(expression_1.solution)){
 				printf("\n\n");
 			}
 			else {

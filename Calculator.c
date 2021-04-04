@@ -12,6 +12,30 @@ struct expression {
 
 
 /*
+This function logs the result of every succesfuly evaluated expression to a text file ./CalculatorHistory.txt
+*/
+void log_equation(struct expression* expression)
+{
+	FILE *fp;
+	char formattedString[81];
+	errno_t err_value;
+	
+	// Create formated string based off of expression
+	snprintf(formattedString, sizeof(formattedString) - 1, "%.2f %c %.2f = %.2f\n", expression->f_operand, expression->oper, expression->s_operand, expression->solution);
+
+	//Open file in append mode
+	err_value = fopen_s(&fp, "./CalculatorHistory.txt", "a");
+	//If file was opened succesfully, write our formated string and close the file.
+	if (err_value == 0)
+	{
+		fputs(formattedString, fp);
+		fclose(fp);
+	}
+}
+
+
+
+/*
 This function accepts a pointer to a struct expression. It will Assign NAN to the oper member if an error is found.
 If the expression can be evaluated, the result is assigned to the oper member
 */
@@ -92,6 +116,7 @@ int main(void) {
 			}
 			else {
 				printf("%.2f\n\n", expression_1.solution);
+				log_equation(&expression_1);
 			}
 		}
 		else {
